@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, FirebaseApp } from "firebase/app";
 import { getAuth, signInAnonymously, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User, Auth } from "firebase/auth";
-import { getFirestore, Firestore } from "firebase/firestore";
+// import { getFirestore, Firestore } from "firebase/firestore";
 import { getDatabase, ref, push, set, get, query, orderByChild, equalTo, limitToLast, Database } from "firebase/database";
 import { 
   MessageData, 
@@ -9,7 +9,7 @@ import {
   FirebaseMessage, 
   FirebaseConversation,
   AnonymousToken,
-  SupportedLanguage 
+  // SupportedLanguage 
 } from '@/lib/types';
 
 // Check if Firebase is properly configured

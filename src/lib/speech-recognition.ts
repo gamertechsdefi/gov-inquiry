@@ -94,7 +94,7 @@ export class SpeechRecognitionService {
   
       try {
         this.recognition.start();
-      } catch (error) {
+      } catch {
         onError('Failed to start speech recognition');
         this.isListening = false;
       }

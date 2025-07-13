@@ -5,11 +5,11 @@ interface SearchResult {
   source?: string;
 }
 
-interface SearchResponse {
-  results: SearchResult[];
-  totalResults?: number;
-  searchTime?: number;
-}
+// interface SearchResponse {
+//   results: SearchResult[];
+//   totalResults?: number;
+//   searchTime?: number;
+// }
 
 interface StateInfo {
   name: string;
@@ -290,7 +290,7 @@ export class SearchService {
         },
         body: JSON.stringify({
           q: enhancedQuery,
-          gl: this.getCountryCode(language), // Always Nigeria
+          gl: this.getCountryCode(), // Always Nigeria
           hl: this.getLanguageCode(language),
           num: 5, // Limit to 5 results for faster responses
           // Add site restrictions for government sites if state is detected
@@ -373,8 +373,9 @@ export class SearchService {
     return `${query} ${stateTerms} Nigeria government services official site`;
   }
 
-  private getCountryCode(language: string): string {
+  private getCountryCode(): string {
     // Always use Nigeria for better local results
+   
     return 'ng';
   }
 
