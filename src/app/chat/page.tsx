@@ -38,7 +38,6 @@ export default function GovernmentServiceChat() {
     currentLanguage,
     sendMessage,
     switchLanguage,
-    canSendMessage,
     remainingMessages
   } = useChat({ initialLanguage: 'en' });
 
