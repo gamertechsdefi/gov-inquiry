@@ -230,7 +230,7 @@ Mee ka nzaghachi gị dabara dabara na ajụjụ a jụrụ. Ekwela ndepụta �
     return responses[language] || responses.en;
   }
 
-  async translateText(text: string, targetLanguage: SupportedLanguage): Promise<string> {
+  async translateText(text: string): Promise<string> {
     // This would integrate with Google Translate API or similar
     // For now, returning the original text
     return text;
