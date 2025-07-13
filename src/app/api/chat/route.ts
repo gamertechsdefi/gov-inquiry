@@ -6,7 +6,6 @@ import {
   ChatRequest, 
   ChatResponse, 
   ApiError, 
-  SupportedLanguage,
   MessageData 
 } from '@/lib/types';
 

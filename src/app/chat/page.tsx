@@ -15,12 +15,12 @@ const LANGUAGE_NAMES = {
   ig: 'Igbo'
 };
 
-const WELCOME_MESSAGES = {
-  en: "Hello! I'm here to help you with government services. How can I assist you today?",
-  yo: "Bawo! Mo wa nibi lati ran e lowo pelu awon ise ijoba. Bawo ni mo se le ran e lowo loni?",
-  ha: "Sannu! Ina nan don taimaka muku da hidimar gwamnati. Yaya zan iya taimaka muku a yau?",
-  ig: "Ndewo! Anọ m ebe a inyere gị aka na ọrụ gọọmentị. Kedu ka m ga-esi nyere gị aka taa?"
-};
+// const WELCOME_MESSAGES = {
+//   en: "Hello! I'm here to help you with government services. How can I assist you today?",
+//   yo: "Bawo! Mo wa nibi lati ran e lowo pelu awon ise ijoba. Bawo ni mo se le ran e lowo loni?",
+//   ha: "Sannu! Ina nan don taimaka muku da hidimar gwamnati. Yaya zan iya taimaka muku a yau?",
+//   ig: "Ndewo! Anọ m ebe a inyere gị aka na ọrụ gọọmentị. Kedu ka m ga-esi nyere gị aka taa?"
+// };
 
 export default function GovernmentServiceChat() {
   const [inputText, setInputText] = useState('');
@@ -36,7 +36,7 @@ export default function GovernmentServiceChat() {
     currentLanguage,
     sendMessage,
     switchLanguage,
-    canSendMessage,
+    // canSendMessage,
     remainingMessages
   } = useChat({ initialLanguage: 'en' });
 
