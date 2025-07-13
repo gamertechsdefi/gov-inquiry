@@ -51,8 +51,8 @@ export const AuthModal = ({ isOpen, onClose, mode }: AuthModalProps) => {
           setError(result.error || 'Sign in failed');
         }
       }
-    } catch (err: any) {
-      setError(err.message || 'An error occurred');
+    }  catch{
+      setError( 'An error occurred');
     } finally {
       setIsLoading(false);
     }

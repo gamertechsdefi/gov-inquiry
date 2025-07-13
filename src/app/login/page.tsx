@@ -27,8 +27,8 @@ export default function LoginPage() {
       } else {
         setError(result.error || 'Sign in failed');
       }
-    } catch (err: any) {
-      setError(err.message || 'An error occurred');
+    } catch {
+      setError( 'An error occurred');
     } finally {
       setIsLoading(false);
     }
@@ -210,7 +210,7 @@ export default function LoginPage() {
 
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link href="/signup" className="font-medium text-green-600 hover:text-green-500">
                 Sign up here
               </Link>

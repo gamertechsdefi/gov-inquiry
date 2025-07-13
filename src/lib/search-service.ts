@@ -18,6 +18,20 @@ interface StateInfo {
   governmentSites: string[];
 }
 
+// Serper API response types
+interface SerperSearchResult {
+  title?: string;
+  link?: string;
+  snippet?: string;
+  source?: string;
+  [key: string]: unknown;
+}
+
+interface SerperSearchResponse {
+  organic?: SerperSearchResult[];
+  [key: string]: unknown;
+}
+
 export class SearchService {
   private apiKey: string;
   private nigerianStates!: Map<string, StateInfo>;
@@ -298,10 +312,10 @@ export class SearchService {
         throw new Error(`Search API error: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data: SerperSearchResponse = await response.json();
       
       if (data.organic && Array.isArray(data.organic)) {
-        const results = data.organic.map((result: any) => ({
+        const results = data.organic.map((result: SerperSearchResult) => ({
           title: result.title || '',
           link: result.link || '',
           snippet: result.snippet || '',
@@ -518,10 +532,10 @@ export class SearchService {
         throw new Error(`Search API error: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data: SerperSearchResponse = await response.json();
       
       if (data.organic && Array.isArray(data.organic)) {
-        const results = data.organic.map((result: any) => ({
+        const results = data.organic.map((result: SerperSearchResult) => ({
           title: result.title || '',
           link: result.link || '',
           snippet: result.snippet || '',

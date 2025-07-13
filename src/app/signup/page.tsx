@@ -42,8 +42,8 @@ export default function SignupPage() {
       } else {
         setError(result.error || 'Sign up failed');
       }
-    } catch (err: any) {
-      setError(err.message || 'An error occurred');
+    } catch {
+      setError('An error occurred');
     } finally {
       setIsLoading(false);
     }

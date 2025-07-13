@@ -1,16 +1,21 @@
 // app/api/chat/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { dbOperations } from '@/lib/firebase';
-import { LanguageDetector } from '@/lib/language-detection';
 import { AIService } from '@/lib/ai-service';
-import { SupportedLanguage } from '@/lib/types';
+import { 
+  ChatRequest, 
+  ChatResponse, 
+  ApiError, 
+  SupportedLanguage,
+  MessageData 
+} from '@/lib/types';
 
-const languageDetector = new LanguageDetector();
 const aiService = new AIService();
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, conversationId, userId, selectedLanguage } = await request.json();
+    const body: ChatRequest = await request.json();
+    const { message, conversationId, selectedLanguage } = body;
 
     if (!message) {
       return NextResponse.json({ message: 'Message is required' }, { status: 400 });
@@ -24,7 +29,7 @@ export async function POST(request: NextRequest) {
     if (conversationId && !conversationId.startsWith('local_')) {
       try {
         const messages = await dbOperations.getConversationMessages(conversationId, 5); // Limit to 5 messages
-        context = messages.map(msg =>
+        context = messages.map((msg: { sender: string; content: string }) =>
           `${msg.sender}: ${msg.content}`
         );
         console.log(`Loaded ${context.length} recent messages for context`);
@@ -46,18 +51,20 @@ export async function POST(request: NextRequest) {
       try {
         console.log('Storing messages for conversation:', conversationId);
         // Store user message
-        await dbOperations.addMessage(conversationId, {
+        const userMessageData: MessageData = {
           content: message,
           sender: 'user',
           language: language
-        });
+        };
+        await dbOperations.addMessage(conversationId, userMessageData);
 
         // Store bot response
-        await dbOperations.addMessage(conversationId, {
+        const botMessageData: MessageData = {
           content: botResponse,
           sender: 'bot',
           language: language
-        });
+        };
+        await dbOperations.addMessage(conversationId, botMessageData);
         console.log('Messages stored successfully');
       } catch (error) {
         console.warn('Could not store messages in database:', error);
@@ -72,17 +79,21 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
+    const response: ChatResponse = {
       response: botResponse,
       language: language
-    }, { status: 200 });
+    };
+    
+    return NextResponse.json(response, { status: 200 });
 
   } catch (error) {
     console.error('Chat API Error:', error);
-    return NextResponse.json({ 
+    const errorResponse: ApiError = {
       message: 'Sorry, I encountered an error. Please try again.',
-      language: 'en'
-    }, { status: 200 }); // Return 200 with error message instead of 500
+      language: 'en',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    };
+    return NextResponse.json(errorResponse, { status: 200 }); // Return 200 with error message instead of 500
   }
 }
 

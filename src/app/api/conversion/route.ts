@@ -1,10 +1,11 @@
 // app/api/conversations/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { dbOperations } from '@/lib/firebase';
+import { ConversationData, SupportedLanguage } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, language } = await request.json();
+    const { userId, language }: { userId: string; language?: SupportedLanguage } = await request.json();
 
     // For anonymous users or when Firebase is not configured, create a local conversation
     if (userId === 'anonymous' || !process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY === 'your_firebase_api_key_here') {
@@ -25,12 +26,13 @@ export async function POST(request: NextRequest) {
     // For registered users, create conversation in Firebase
     console.log('Creating Firebase conversation for user:', userId);
     try {
-      const conversation = await dbOperations.createConversation({
+      const conversationData: ConversationData = {
         user_id: userId,
         language: language || 'en',
         status: 'active',
         messages: []
-      });
+      };
+      const conversation = await dbOperations.createConversation(conversationData);
       console.log('Created Firebase conversation:', conversation.id);
       return NextResponse.json(conversation, { status: 200 });
     } catch (firebaseError) {

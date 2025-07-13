@@ -3,6 +3,14 @@ import { initializeApp, FirebaseApp } from "firebase/app";
 import { getAuth, signInAnonymously, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User, Auth } from "firebase/auth";
 import { getFirestore, Firestore } from "firebase/firestore";
 import { getDatabase, ref, push, set, get, query, orderByChild, equalTo, limitToLast, Database } from "firebase/database";
+import { 
+  MessageData, 
+  ConversationData, 
+  FirebaseMessage, 
+  FirebaseConversation,
+  AnonymousToken,
+  SupportedLanguage 
+} from '@/lib/types';
 
 // Check if Firebase is properly configured
 const isFirebaseConfigured = () => {
@@ -26,7 +34,7 @@ const isFirebaseConfigured = () => {
 // Lazy Firebase initialization
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
-let db: Firestore | null = null;
+// let db: Firestore | null = null;
 let database: Database | null = null;
 
 const initializeFirebase = () => {
@@ -60,7 +68,7 @@ const initializeFirebase = () => {
 
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
-    db = getFirestore(app);
+    // db = getFirestore(app);
     database = getDatabase(app);
     
     console.log('Firebase initialized successfully');
@@ -103,7 +111,7 @@ export const dbRef = {
 // Database operations
 export const dbOperations = {
   // Create a new conversation
-  createConversation: async (conversationData: any) => {
+  createConversation: async (conversationData: ConversationData) => {
     try {
       console.log('Initializing Firebase for conversation creation...');
       if (!initializeFirebase()) {
@@ -126,13 +134,13 @@ export const dbOperations = {
   },
 
   // Get conversation by ID
-  getConversation: async (conversationId: string) => {
+  getConversation: async (conversationId: string): Promise<FirebaseConversation | null> => {
     const snapshot = await get(dbRef.conversation(conversationId));
-    return snapshot.exists() ? snapshot.val() : null;
+    return snapshot.exists() ? { id: conversationId, ...snapshot.val() } : null;
   },
 
   // Get conversations for a specific user with memory management
-  getUserConversations: async (userId: string, limit: number = 10) => {
+  getUserConversations: async (userId: string, limit: number = 10): Promise<FirebaseConversation[]> => {
     try {
       const conversationsQuery = query(
         dbRef.conversations(),
@@ -158,7 +166,7 @@ export const dbOperations = {
   },
 
   // Get messages for a conversation with memory management
-  getConversationMessages: async (conversationId: string, limit: number = 50) => {
+  getConversationMessages: async (conversationId: string, limit: number = 50): Promise<FirebaseMessage[]> => {
     try {
       console.log('Getting messages for conversation:', conversationId);
       
@@ -180,7 +188,7 @@ export const dbOperations = {
       }
       
       const messages = snapshot.val();
-      const messageList = Object.keys(messages)
+      const messageList: FirebaseMessage[] = Object.keys(messages)
         .map(key => ({
           id: key,
           ...messages[key]
@@ -196,7 +204,7 @@ export const dbOperations = {
   },
 
   // Add message to conversation with memory management
-  addMessage: async (conversationId: string, messageData: any) => {
+  addMessage: async (conversationId: string, messageData: MessageData) => {
     try {
       console.log('Adding message to conversation:', conversationId, messageData);
       
@@ -227,7 +235,7 @@ export const dbOperations = {
       }
 
       console.log('Message added successfully with ID:', newMessageRef.key);
-      return { id: newMessageRef.key, ...messageData };
+      return { id: newMessageRef.key!, ...messageData };
     } catch (error) {
       console.error('Error adding message:', error);
       throw error;
@@ -273,7 +281,7 @@ export const dbOperations = {
   },
 
   // Initialize default services if they don't exist
-  initializeServices: async (services: any[]) => {
+  initializeServices: async (services: Array<{ id: string; [key: string]: unknown }>) => {
     const snapshot = await get(dbRef.services());
     if (!snapshot.exists()) {
       for (const service of services) {
@@ -286,7 +294,7 @@ export const dbOperations = {
 // Anonymous token management
 export const tokenManager = {
   // Generate anonymous token
-  generateAnonymousToken: () => {
+  generateAnonymousToken: (): AnonymousToken => {
     const token = {
       id: `anon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       type: 'anonymous' as const,
@@ -304,7 +312,7 @@ export const tokenManager = {
   },
 
   // Get anonymous token from localStorage
-  getAnonymousToken: () => {
+  getAnonymousToken: (): AnonymousToken | null => {
     if (typeof window === 'undefined') return null;
     
     const tokenStr = localStorage.getItem('gov_chat_anon_token');
@@ -323,7 +331,7 @@ export const tokenManager = {
       return {
         ...token,
         type: 'anonymous' as const
-      };
+      } as AnonymousToken;
     } catch {
       localStorage.removeItem('gov_chat_anon_token');
       return null;
@@ -331,7 +339,7 @@ export const tokenManager = {
   },
 
   // Increment message count for anonymous user
-  incrementMessageCount: () => {
+  incrementMessageCount: (): boolean => {
     const token = tokenManager.getAnonymousToken();
     if (!token) return false;
     
@@ -345,14 +353,14 @@ export const tokenManager = {
   },
 
   // Check if anonymous user can send more messages
-  canSendMessage: () => {
+  canSendMessage: (): boolean => {
     const token = tokenManager.getAnonymousToken();
     if (!token) return false;
     return token.messageCount < token.maxMessages;
   },
 
   // Get remaining messages for anonymous user
-  getRemainingMessages: () => {
+  getRemainingMessages: (): number => {
     const token = tokenManager.getAnonymousToken();
     if (!token) return 0;
     return Math.max(0, token.maxMessages - token.messageCount);
@@ -369,20 +377,21 @@ export const tokenManager = {
 // Authentication operations
 export const authOperations = {
   // Sign in anonymously
-  signInAnonymously: async () => {
+  signInAnonymously: async (): Promise<{ user: User | null; error: string | null }> => {
     try {
       if (!initializeFirebase() || !auth) {
         return { user: null, error: 'Firebase not initialized' };
       }
       const userCredential = await signInAnonymously(auth);
       return { user: userCredential.user, error: null };
-    } catch (error: any) {
-      return { user: null, error: error.message };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      return { user: null, error: errorMessage };
     }
   },
 
   // Sign up with email and password
-  signUp: async (email: string, password: string) => {
+  signUp: async (email: string, password: string): Promise<{ user: User | null; error: string | null }> => {
     try {
       if (!initializeFirebase() || !auth) {
         return { user: null, error: 'Firebase not initialized' };
@@ -391,13 +400,14 @@ export const authOperations = {
       // Clear anonymous token when user registers
       tokenManager.clearAnonymousToken();
       return { user: userCredential.user, error: null };
-    } catch (error: any) {
-      return { user: null, error: error.message };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      return { user: null, error: errorMessage };
     }
   },
 
   // Sign in with email and password
-  signIn: async (email: string, password: string) => {
+  signIn: async (email: string, password: string): Promise<{ user: User | null; error: string | null }> => {
     try {
       if (!initializeFirebase() || !auth) {
         return { user: null, error: 'Firebase not initialized' };
@@ -406,31 +416,33 @@ export const authOperations = {
       // Clear anonymous token when user signs in
       tokenManager.clearAnonymousToken();
       return { user: userCredential.user, error: null };
-    } catch (error: any) {
-      return { user: null, error: error.message };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      return { user: null, error: errorMessage };
     }
   },
 
   // Sign out
-  signOut: async () => {
+  signOut: async (): Promise<{ error: string | null }> => {
     try {
       if (!auth) {
         return { error: 'Firebase not initialized' };
       }
       await signOut(auth);
       return { error: null };
-    } catch (error: any) {
-      return { error: error.message };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      return { error: errorMessage };
     }
   },
 
   // Get current user
-  getCurrentUser: () => {
+  getCurrentUser: (): User | null => {
     return auth?.currentUser || null;
   },
 
   // Listen to auth state changes
-  onAuthStateChanged: (callback: (user: User | null) => void) => {
+  onAuthStateChanged: (callback: (user: User | null) => void): (() => void) => {
     if (!initializeFirebase() || !auth) {
       // Return a dummy unsubscribe function if Firebase is not initialized
       return () => {};

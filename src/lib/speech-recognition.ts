@@ -1,12 +1,53 @@
 import { SupportedLanguage } from '@/lib/types';
 
+// Type definitions for Web Speech API
+interface SpeechRecognitionEvent {
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionResultList {
+  [index: number]: SpeechRecognitionResult;
+  length: number;
+}
+
+interface SpeechRecognitionResult {
+  [index: number]: SpeechRecognitionAlternative;
+  length: number;
+  isFinal: boolean;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
+interface SpeechRecognitionErrorEvent {
+  error: string;
+  message?: string;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start(): void;
+  stop(): void;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+  onend: (() => void) | null;
+}
+
+interface Window {
+  webkitSpeechRecognition: new () => SpeechRecognition;
+}
+
 export class SpeechRecognitionService {
-    private recognition: any;
+    private recognition: SpeechRecognition | null = null;
     private isListening = false;
     
     constructor() {
       if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
-        this.recognition = new (window as any).webkitSpeechRecognition();
+        this.recognition = new (window as Window).webkitSpeechRecognition();
         this.recognition.continuous = false;
         this.recognition.interimResults = false;
         this.recognition.lang = 'en-US';
@@ -36,13 +77,13 @@ export class SpeechRecognitionService {
       this.recognition.lang = langCodes[language] || 'en-US';
       this.isListening = true;
   
-      this.recognition.onresult = (event: any) => {
+            this.recognition.onresult = (event: SpeechRecognitionEvent) => {
         const transcript = event.results[0][0].transcript;
         onResult(transcript);
         this.isListening = false;
       };
-  
-      this.recognition.onerror = (event: any) => {
+
+      this.recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
         onError(event.error);
         this.isListening = false;
       };

@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Initialize services if they don't exist
-    await dbOperations.initializeServices(GOVERNMENT_SERVICES);
+    await dbOperations.initializeServices(GOVERNMENT_SERVICES as Array<{ id: string; [key: string]: unknown }>);
 
     // Get all services
     let services = await dbOperations.getServices();

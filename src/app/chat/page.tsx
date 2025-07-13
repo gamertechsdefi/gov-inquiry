@@ -6,7 +6,6 @@ import { useChat } from '@/hooks/useChat';
 import { SupportedLanguage } from '@/lib/types';
 import { MarkdownMessage } from '@/components/MarkdownMessage';
 import { UserStatus } from '@/components/UserStatus';
-import { Navigation } from '@/components/Navigation';
 import { SearchIndicator } from '@/components/SearchIndicator';
 
 const LANGUAGE_NAMES = {
@@ -36,7 +35,6 @@ export default function GovernmentServiceChat() {
     isLoading,
     currentLanguage,
     sendMessage,
-    clearMessages,
     switchLanguage,
     canSendMessage,
     remainingMessages
@@ -45,13 +43,13 @@ export default function GovernmentServiceChat() {
   useEffect(() => {
     // Add welcome message if no messages exist
     if (messages.length === 0) {
-      const welcomeMessage = {
-        id: 'welcome',
-        content: `${WELCOME_MESSAGES[currentLanguage]}\n\n**I will respond in ${LANGUAGE_NAMES[currentLanguage]}**`,
-        sender: 'bot' as const,
-        timestamp: new Date(),
-        language: currentLanguage
-      };
+      // const welcomeMessage = {
+      //   id: 'welcome',
+      //   content: `${WELCOME_MESSAGES[currentLanguage]}\n\n**I will respond in ${LANGUAGE_NAMES[currentLanguage]}**`,
+      //   sender: 'bot' as const,
+      //   timestamp: new Date(),
+      //   language: currentLanguage
+      // };
       // Note: This will be handled by the useChat hook when it loads
     }
   }, [currentLanguage, messages.length]);

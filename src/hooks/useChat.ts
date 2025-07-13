@@ -57,10 +57,10 @@ export function useChat({ initialLanguage = 'en', conversationId }: UseChatProps
         console.log('Loading local conversation from localStorage');
         const storedMessages = localStorage.getItem(`chat_${convId}`);
         if (storedMessages) {
-          const parsedMessages = JSON.parse(storedMessages).map((msg: any) => ({
-            ...msg,
-            timestamp: new Date(msg.timestamp)
-          }));
+                  const parsedMessages = JSON.parse(storedMessages).map((msg: { timestamp: string; [key: string]: unknown }) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }));
           setMessages(parsedMessages);
           console.log('Loaded local messages:', parsedMessages.length);
         }
@@ -72,7 +72,7 @@ export function useChat({ initialLanguage = 'en', conversationId }: UseChatProps
       const response = await fetch(`/api/conversion?conversationId=${convId}`);
       if (response.ok) {
         const data = await response.json();
-        const messages = data.map((msg: any) => ({
+        const messages = data.map((msg: { timestamp: string; [key: string]: unknown }) => ({
           ...msg,
           timestamp: new Date(msg.timestamp)
         }));

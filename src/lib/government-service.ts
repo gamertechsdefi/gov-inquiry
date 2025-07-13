@@ -1,4 +1,4 @@
-import { GovernmentService, SupportedLanguage } from '@/lib/types';
+import { GovernmentService } from '@/lib/types';
 
 export const GOVERNMENT_SERVICES: GovernmentService[] = [
   {

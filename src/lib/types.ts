@@ -36,6 +36,7 @@ export interface Message {
         process_steps: string[];
       };
     };
+    [key: string]: unknown; // Index signature for Firebase compatibility
   }
   
   export type SupportedLanguage = 'en' | 'yo' | 'ha' | 'ig';
@@ -48,4 +49,70 @@ export interface Message {
       confidence: number;
     }>;
   }
+
+// API Request/Response types
+export interface ChatRequest {
+  message: string;
+  conversationId?: string;
+  selectedLanguage?: SupportedLanguage;
+}
+
+export interface ChatResponse {
+  response: string;
+  language: SupportedLanguage;
+}
+
+export interface MessageData {
+  content: string;
+  sender: 'user' | 'bot';
+  language: SupportedLanguage;
+  timestamp?: string;
+}
+
+export interface ConversationData {
+  user_id?: string;
+  language: SupportedLanguage;
+  service_category?: string;
+  status?: 'active' | 'completed' | 'transferred';
+  messages?: unknown[]; // Optional messages array for Firebase compatibility
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Firebase Database types
+export interface FirebaseMessage {
+  id: string;
+  content: string;
+  sender: 'user' | 'bot';
+  language: SupportedLanguage;
+  timestamp: string;
+}
+
+export interface FirebaseConversation {
+  id: string;
+  user_id?: string;
+  language: SupportedLanguage;
+  service_category?: string;
+  status: 'active' | 'completed' | 'transferred';
+  messages?: unknown[]; // Optional messages array for Firebase compatibility
+  created_at: string;
+  updated_at: string;
+}
+
+// Anonymous token types
+export interface AnonymousToken {
+  id: string;
+  type: 'anonymous';
+  messageCount: number;
+  maxMessages: number;
+  createdAt: string;
+  expiresAt: string;
+}
+
+// Error response types
+export interface ApiError {
+  message: string;
+  language?: SupportedLanguage;
+  details?: string;
+}
   

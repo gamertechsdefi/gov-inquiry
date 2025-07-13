@@ -159,9 +159,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }));
       
       return { success: true };
-    } catch (error: any) {
-      console.error('Anonymous sign in error:', error);
-      return { success: false, error: error.message };
+    } catch {
+      console.error('Anonymous sign in error:');
+      return { success: false };
     }
   };
 
@@ -186,9 +186,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }));
       
       return { success: true };
-    } catch (error: any) {
-      console.error('Sign up error:', error);
-      return { success: false, error: error.message };
+    } catch {
+      console.error('Sign up error:');
+      return { success: false };
     }
   };
 
@@ -213,9 +213,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }));
       
       return { success: true };
-    } catch (error: any) {
-      console.error('Sign in error:', error);
-      return { success: false, error: error.message };
+    } catch {
+      console.error('Sign in error:');
+      return { success: false };
     }
   };
 
@@ -244,8 +244,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }));
       
       return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch {
+      return { success: false };
     }
   };
 
