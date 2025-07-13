@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { Send, Mic, MicOff, Globe, Volume2 } from 'lucide-react';
 import { useChat } from '@/hooks/useChat';
 import { SupportedLanguage } from '@/lib/types';
 import { MarkdownMessage } from '@/components/MarkdownMessage';
 import { UserStatus } from '@/components/UserStatus';
 import { SearchIndicator } from '@/components/SearchIndicator';
+import { Navigation } from '@/components/Navigation';
 
 const LANGUAGE_NAMES = {
   en: 'English',
@@ -15,12 +17,12 @@ const LANGUAGE_NAMES = {
   ig: 'Igbo'
 };
 
-// const WELCOME_MESSAGES = {
-//   en: "Hello! I'm here to help you with government services. How can I assist you today?",
-//   yo: "Bawo! Mo wa nibi lati ran e lowo pelu awon ise ijoba. Bawo ni mo se le ran e lowo loni?",
-//   ha: "Sannu! Ina nan don taimaka muku da hidimar gwamnati. Yaya zan iya taimaka muku a yau?",
-//   ig: "Ndewo! Anọ m ebe a inyere gị aka na ọrụ gọọmentị. Kedu ka m ga-esi nyere gị aka taa?"
-// };
+const WELCOME_MESSAGES = {
+  en: "Hello! I'm here to help you with government services. How can I assist you today?",
+  yo: "Bawo! Mo wa nibi lati ran e lowo pelu awon ise ijoba. Bawo ni mo se le ran e lowo loni?",
+  ha: "Sannu! Ina nan don taimaka muku da hidimar gwamnati. Yaya zan iya taimaka muku a yau?",
+  ig: "Ndewo! Anọ m ebe a inyere gị aka na ọrụ gọọmentị. Kedu ka m ga-esi nyere gị aka taa?"
+};
 
 export default function GovernmentServiceChat() {
   const [inputText, setInputText] = useState('');
@@ -36,7 +38,7 @@ export default function GovernmentServiceChat() {
     currentLanguage,
     sendMessage,
     switchLanguage,
-    // canSendMessage,
+    canSendMessage,
     remainingMessages
   } = useChat({ initialLanguage: 'en' });
 
@@ -126,11 +128,26 @@ export default function GovernmentServiceChat() {
         </div>
       </div>
 
+      {/* Navigation */}
+      <Navigation />
+
       {/* User Status */}
       <UserStatus />
 
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {/* Welcome Message */}
+        {messages.length === 0 && (
+          <div className="flex justify-start">
+            <div className="bg-white text-gray-800 shadow-md px-4 py-2 rounded-lg max-w-md">
+              <p className="text-sm">{WELCOME_MESSAGES[currentLanguage]}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                I will respond in {LANGUAGE_NAMES[currentLanguage]}
+              </p>
+            </div>
+          </div>
+        )}
+        
         {messages.map((message) => (
           <div
             key={message.id}
@@ -230,6 +247,11 @@ export default function GovernmentServiceChat() {
         {remainingMessages >= 0 && (
           <div className="mt-2 text-xs text-gray-500 text-center">
             {remainingMessages} messages remaining
+            {remainingMessages <= 2 && (
+              <span className="text-blue-600 ml-2">
+                • <Link href="/signup" className="underline">Sign up for unlimited messages</Link>
+              </span>
+            )}
           </div>
         )}
         
