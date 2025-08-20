@@ -88,7 +88,7 @@ export default function GovernmentServiceChat() {
       {/* Header */}
       <div className="bg-green-600 text-white p-4 md:p-8 shadow-lg">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold">Government Service Assistant</h1>
+          <h1 className="text-xl font-bold">NACOS GSI</h1>
           <div className="flex items-center space-x-4">
             {/* Current Language Display */}
             <div className="flex items-center space-x-2 bg-green-700 px-3 py-1 rounded-full text-sm">
